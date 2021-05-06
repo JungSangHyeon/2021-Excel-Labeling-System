@@ -1,4 +1,4 @@
-package labelingSystem;
+package labeling;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,28 +8,43 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 
-public class LabelingSystemFood {
+public class LabelingSystem {
 
+	// Attribute
 	private String targetFileName, ruleFileName, labeledFileName;
+	
+	// Working Variable
 	private int labeledCount = 0;
 	
+	// Component
 	private Vector<LabelTargetData> labelTargetDataVector = new Vector<LabelTargetData>();
 	private Vector<String> labelingRuleVector = new Vector<String>(); // "A B" --> A가 포함되면 B 라벨을 붙인다.
 	
-	public void labeling(String targetFileName, String ruleFileName, String labeledFileName) {
+	// Constructor
+	public LabelingSystem(String targetFileName, String ruleFileName, String labeledFileName) {
+		// Set Attribute
 		this.targetFileName = targetFileName;
 		this.ruleFileName = ruleFileName;
 		this.labeledFileName = labeledFileName;
-		
+	}
+	
+	public void labeling() {
 		this.readTargetFile();
 		this.readRuleFile();
 		this.applyAllRule();
+		
 		this.labelingData();
+		
 		this.writeToLabeldFile();
 		this.writeToRuleFile();
 	}
 	
-
+	private void applyAllRule() {
+		for(String rule:this.labelingRuleVector) {
+			this.applyRule(rule);
+		}
+	}
+	
 	private void labelingData() {
 		boolean noLabelExist = true;
 		while(noLabelExist) {
@@ -40,7 +55,7 @@ public class LabelingSystemFood {
 				System.out.println("얘 라벨 없어요: "+noLabelData.originalData);
 				System.out.println("현재 라벨링 된 개수: "+this.labeledCount);
 				String newRule = this.addRule();
-				if(newRule.equals("ExitSystem")) {
+				if(newRule.equals("ExitSystem")) { // 중간 종료
 					noLabelExist = false;
 					this.labelingRuleVector.remove(this.labelingRuleVector.size()-1);
 				}else {
@@ -50,20 +65,24 @@ public class LabelingSystemFood {
 		}
 		System.out.println("종료합니다!");
 	}
-	
-	private void applyAllRule() {
-		for(String rule:this.labelingRuleVector) {
-			this.applyRule(rule);
+	private LabelTargetData getNoLabelData() {
+		for(LabelTargetData labelTargetData : this.labelTargetDataVector) {
+			if(!labelTargetData.labeled) {return labelTargetData;}
 		}
+		return null;
 	}
-
+	private String addRule() {
+		Scanner sc = new Scanner(System.in);
+		String newRule = sc.nextLine();
+		this.labelingRuleVector.add(newRule);
+		return newRule;
+	}
 	private void applyRule(String newRule) {
 		try {
 			Scanner sc = new Scanner(newRule);
 			String contain = sc.next();
 			String label = sc.next();
 			for(LabelTargetData labelTargetData : this.labelTargetDataVector) {
-//				System.out.println(!labelTargetData.labeled +", "+labelTargetData.originalData+", "+ labelTargetData.originalData.contains(contain));
 				if(!labelTargetData.labeled && labelTargetData.originalData.contains(contain)) {
 					labelTargetData.label = label;
 					labelTargetData.labeled = true;
@@ -77,22 +96,9 @@ public class LabelingSystemFood {
 		}
 	}
 
-	private String addRule() {
-		Scanner sc = new Scanner(System.in);
-		String newRule = sc.nextLine();
-		this.labelingRuleVector.add(newRule);
-		return newRule;
-	}
-
-	private LabelTargetData getNoLabelData() {
-		for(LabelTargetData labelTargetData : this.labelTargetDataVector) {
-			if(!labelTargetData.labeled) {
-				return labelTargetData;
-			}
-		}
-		return null;
-	}
-
+	/**
+	 * Read & Write File
+	 */
 	private void readTargetFile() {
 		try {
 			FileReader rw = new FileReader(this.targetFileName); 
@@ -117,7 +123,6 @@ public class LabelingSystemFood {
 			br.close();
 		} catch (IOException e) {System.out.println(e);}
 	}
-	
 	private void writeToLabeldFile() {
 		try {
 			FileWriter fw = new FileWriter(this.labeledFileName, false);
@@ -142,5 +147,4 @@ public class LabelingSystemFood {
 			bw.close();
 		} catch (IOException e) {System.out.println(e);}
 	}
-	
 }

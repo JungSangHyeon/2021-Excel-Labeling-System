@@ -1,32 +1,29 @@
-package excelLabelingMain;
+package excel;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Vector;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-public class AlerzyLabel {
+public class ExcelTool {
 	
-	public void addAllergz() {
-		int columnIndex = 9;
+	public static void main(String[] args) { // Example. 알아서 적당히 변형해 사용
 		try {
-            FileInputStream file = new FileInputStream("companyLabeledFood.xlsx");
+            FileInputStream file = new FileInputStream("target.xlsx");
             XSSFWorkbook workbook = new XSSFWorkbook(file);
             int rowindex=0;
             int columnindex=0;
             XSSFSheet sheet=workbook.getSheetAt(0); //시트 수 (첫번째에만 존재하므로 0을 준다) 만약 각 시트를 읽기위해서는 FOR문을 한번더 돌려준다
             int rows=sheet.getPhysicalNumberOfRows(); //행의 수 (데이터)
+            rows=10;
             for(rowindex=0;rowindex<rows;rowindex++){
                 XSSFRow row=sheet.getRow(rowindex); //행을읽는다
                 if(row !=null){
-                        XSSFCell cell=row.getCell(columnIndex); //셀값을 읽는다
+                    int cells=row.getPhysicalNumberOfCells();  //셀의 수 (컬럼)
+                    for(columnindex=0; columnindex<=cells; columnindex++){
+                        XSSFCell cell=row.getCell(columnindex); //셀값을 읽는다
                         String value="";
                         if(cell==null){ //셀이 빈값일경우를 위한 널체크
                             continue;
@@ -39,43 +36,16 @@ public class AlerzyLabel {
                             case ERROR: value=cell.getErrorCellValue()+""; break;
                             }
                         }
-                        String label = this.getLabel(value);
-                        if(label==null) {
-                        	System.err.println("null label: "+value);
-                        }else {
-                        	System.out.println(label+"_"+value);
-                        	cell.setCellValue(label+"_"+value);
-                        }
-//                        if(value.equals("_")) {
-//                        	cell.setCellValue("err "+value);
-//                        	System.out.println("ok");
-//                        }
+                        System.out.println(rowindex+"번 행 : "+columnindex+"번 열 값은: "+value);
+            			cell.setCellValue(":) " + value);
+                    }
                 }
             }
-            
-            FileOutputStream fos = new FileOutputStream("companyAllerzyLabeledFood.xlsx");
-            workbook.write(fos);
-            fos.close();
+			FileOutputStream fos = new FileOutputStream("result.xlsx");
+			workbook.write(fos);
+			fos.close();
         }catch(Exception e) {
             e.printStackTrace();
         }
-		System.out.println("끝");
 	}
-
-	private String getLabel(String value) {
-		String[] allerzy = { "아몬드", "우유", "대두", "밀", "닭고기", "쇠고기", "새우", "오징어", "잣", "소고기", "돼지고기", "메추리알", "토마토", "조개류",
-				"난류", "호두", "복숭아", "땅콩", "게", "아황산류", "메밀", "계란" };
-		String result = "";
-		for(String aller: allerzy) {
-			if(value.contains(aller)) {
-				result+=(aller+" ");
-			}
-		}
-		if(result.length()==0) {
-			result+="null";
-		}
-		result+="_";
-		return result;
-	}
-
 }
