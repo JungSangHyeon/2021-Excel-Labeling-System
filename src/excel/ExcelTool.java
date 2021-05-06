@@ -9,7 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExcelTool {
 	
-	public static void main(String[] args) { // Example. 알아서 적당히 변형해 사용
+	public static void main(String[] args) { // Example. 알아서 변형해 사용
 		try {
             FileInputStream file = new FileInputStream("target.xlsx");
             XSSFWorkbook workbook = new XSSFWorkbook(file);
